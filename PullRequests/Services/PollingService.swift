@@ -75,7 +75,26 @@ class PollingService {
                 .sorted { $0.updatedAt > $1.updatedAt }
 
             appState.needsReviewPRs = visiblePRs
-                .filter { $0.reviewRequestedUsers.contains(username) && $0.author.login != username }
+                .filter { pr in
+                    guard pr.author.login != username else { return false }
+
+                    // Pending review request
+                    if pr.reviewRequestedUsers.contains(username) { return true }
+
+                    // User submitted a review but hasn't approved/rejected yet
+                    // (GitHub removes you from reviewRequests once you submit any review)
+                    let userReviews = pr.reviews.filter { $0.author == username }
+                    if !userReviews.isEmpty {
+                        let latestState = userReviews
+                            .sorted { ($0.submittedAt ?? .distantPast) < ($1.submittedAt ?? .distantPast) }
+                            .last?.state
+                        if latestState == .commented {
+                            return true
+                        }
+                    }
+
+                    return false
+                }
                 .sorted { $0.updatedAt > $1.updatedAt }
 
             appState.lastFetchTime = Date()

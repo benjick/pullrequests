@@ -163,7 +163,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     notificationService?.send(change: change)
                 }
             case .ciFinished:
-                if config.notifyOnCI {
+                if config.notifyOnCI && change.prAuthor == appState.authenticatedUsername {
                     notificationService?.send(change: change)
                 }
             case .reviewRequested:

@@ -5,6 +5,7 @@ struct PRChange {
     let prTitle: String
     let prURL: String
     let repoName: String
+    let prAuthor: String
     let kind: Kind
 
     enum Kind {
@@ -34,6 +35,7 @@ enum PRDiffEngine {
                         prTitle: newPR.title,
                         prURL: newPR.url,
                         repoName: newPR.repoFullName,
+                        prAuthor: newPR.author.login,
                         kind: .reviewRequested
                     ))
                 }
@@ -54,6 +56,7 @@ enum PRDiffEngine {
                     prTitle: newPR.title,
                     prURL: newPR.url,
                     repoName: newPR.repoFullName,
+                    prAuthor: newPR.author.login,
                     kind: .newComment(author: comment.author, body: comment.body)
                 ))
             }
@@ -65,6 +68,7 @@ enum PRDiffEngine {
                     prTitle: newPR.title,
                     prURL: newPR.url,
                     repoName: newPR.repoFullName,
+                    prAuthor: newPR.author.login,
                     kind: .reviewStatusChanged(from: oldPR.reviewStatus, to: newPR.reviewStatus)
                 ))
             }
@@ -78,6 +82,7 @@ enum PRDiffEngine {
                     prTitle: newPR.title,
                     prURL: newPR.url,
                     repoName: newPR.repoFullName,
+                    prAuthor: newPR.author.login,
                     kind: .ciFinished(status: newPR.ciStatus)
                 ))
             }
@@ -90,6 +95,7 @@ enum PRDiffEngine {
                     prTitle: newPR.title,
                     prURL: newPR.url,
                     repoName: newPR.repoFullName,
+                    prAuthor: newPR.author.login,
                     kind: .reviewRequested
                 ))
             }
