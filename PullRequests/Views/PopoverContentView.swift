@@ -61,26 +61,27 @@ struct PopoverContentView: View {
                 emptyView
             } else {
                 ScrollView {
+                    let sections: [(String, String, Color, [PullRequest])] = [
+                        ("Ready to Merge", "checkmark.circle.fill", .green, appState.readyToMerge),
+                        ("Needs Your Review", "eye.fill", .orange, appState.needsReviewPRs),
+                        ("Waiting for Review", "clock.fill", .secondary, appState.waitingForReview),
+                    ]
+                    let nonEmpty = sections.filter { !$0.3.isEmpty }
                     LazyVStack(spacing: 0) {
-                        sectionView(
-                            title: "Ready to Merge",
-                            icon: "checkmark.circle.fill",
-                            iconColor: .green,
-                            prs: appState.readyToMerge
-                        )
-                        sectionView(
-                            title: "Needs Your Review",
-                            icon: "eye.fill",
-                            iconColor: .orange,
-                            prs: appState.needsReviewPRs
-                        )
-                        sectionView(
-                            title: "Waiting for Review",
-                            icon: "clock.fill",
-                            iconColor: .secondary,
-                            prs: appState.waitingForReview
-                        )
+                        ForEach(Array(nonEmpty.enumerated()), id: \.element.0) { index, section in
+                            if index > 0 {
+                                Divider()
+                                    .padding(.top, 8)
+                            }
+                            sectionView(
+                                title: section.0,
+                                icon: section.1,
+                                iconColor: section.2,
+                                prs: section.3
+                            )
+                        }
                     }
+                    .padding(.bottom, 4)
                 }
             }
         }
