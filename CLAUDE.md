@@ -16,7 +16,7 @@ bash scripts/build-app.sh      # create .app bundle (release)
 
 npm run dev                    # alias: swift build + run
 npm run build                  # alias: release build
-npm run install                # build + copy to /Applications
+bash scripts/install.sh        # build + copy to /Applications (do NOT use npm run install)
 npm run clean                  # remove .build/
 ```
 

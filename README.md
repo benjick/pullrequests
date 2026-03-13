@@ -6,6 +6,5 @@ A macOS menu bar app for monitoring GitHub pull requests. It polls the GitHub Gr
 
 ```bash
 git clone https://github.com/benjick/pullrequests.git && cd pullrequests
-bash scripts/build-app.sh
-cp -r .build/release/PullRequests.app /Applications/
+bash scripts/install.sh
 ```
