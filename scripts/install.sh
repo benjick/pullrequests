@@ -5,10 +5,8 @@ APP_NAME="PullRequests"
 BUILD_DIR=".build/release"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
 
-if [ ! -d "$APP_BUNDLE" ]; then
-    echo "App bundle not found. Running build first..."
-    bash scripts/build-app.sh
-fi
+echo "Building..."
+bash scripts/build-app.sh
 
 echo "Installing to /Applications..."
 cp -r "$APP_BUNDLE" /Applications/

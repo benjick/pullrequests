@@ -7,15 +7,11 @@ struct PopoverContentView: View {
     let onQuit: () -> Void
     var onDismiss: (() -> Void)?
 
-    @State private var selectedTab = 0
-
     var body: some View {
         VStack(spacing: 0) {
             if !appState.isConfigured {
                 setupPromptView
             } else {
-                headerView
-                Divider()
                 contentView
                 Divider()
                 footerView
@@ -53,40 +49,69 @@ struct PopoverContentView: View {
         }
     }
 
-    // MARK: - Header
-
-    private var headerView: some View {
-        Picker("", selection: $selectedTab) {
-            Text("My PRs (\(appState.myPRs.count))").tag(0)
-            Text("Needs Review (\(appState.needsReviewPRs.count))").tag(1)
-        }
-        .pickerStyle(.segmented)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-    }
-
     // MARK: - Content
 
     private var contentView: some View {
         Group {
-            let prs = selectedTab == 0 ? appState.myPRs : appState.needsReviewPRs
-
-            if appState.isLoading && prs.isEmpty {
+            if appState.isLoading && appState.allSectionsEmpty {
                 loadingView
-            } else if prs.isEmpty {
+            } else if appState.allSectionsEmpty {
                 emptyView
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(prs) { pr in
-                            PRRowView(pr: pr, appState: appState, onDismiss: onDismiss)
-                            Divider().padding(.leading, 48)
-                        }
+                        sectionView(
+                            title: "Ready to Merge",
+                            icon: "checkmark.circle.fill",
+                            iconColor: .green,
+                            prs: appState.readyToMerge
+                        )
+                        sectionView(
+                            title: "Needs Your Review",
+                            icon: "eye.fill",
+                            iconColor: .orange,
+                            prs: appState.needsReviewPRs
+                        )
+                        sectionView(
+                            title: "Waiting for Review",
+                            icon: "clock.fill",
+                            iconColor: .secondary,
+                            prs: appState.waitingForReview
+                        )
                     }
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func sectionView(title: String, icon: String, iconColor: Color, prs: [PullRequest]) -> some View {
+        Group {
+            if !prs.isEmpty {
+                VStack(spacing: 0) {
+                    HStack(spacing: 6) {
+                        Image(systemName: icon)
+                            .font(.caption)
+                            .foregroundStyle(iconColor)
+                        Text(title)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        Text("\(prs.count)")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.top, 10)
+                    .padding(.bottom, 4)
+
+                    ForEach(prs) { pr in
+                        PRRowView(pr: pr, appState: appState, onDismiss: onDismiss)
+                        Divider().padding(.leading, 48)
+                    }
+                }
+            }
+        }
     }
 
     private var loadingView: some View {
@@ -101,14 +126,22 @@ struct PopoverContentView: View {
     }
 
     private var emptyView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             Spacer()
-            Image(systemName: selectedTab == 0 ? "checkmark.circle" : "eyes")
+            Image(systemName: "tray")
                 .font(.system(size: 32))
                 .foregroundStyle(.secondary)
-            Text(selectedTab == 0 ? "No open PRs" : "No reviews needed")
+            Text("No open pull requests")
                 .font(.callout)
                 .foregroundStyle(.secondary)
+
+            Button(action: onRefresh) {
+                Label("Refresh", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(appState.isLoading)
+
             Spacer()
         }
     }
