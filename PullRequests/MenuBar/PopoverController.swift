@@ -22,10 +22,11 @@ class PopoverController {
             onDismiss: dismiss
         )
 
-        popover.contentSize = NSSize(width: 380, height: 500)
         popover.behavior = .transient
         popover.animates = true
-        popover.contentViewController = NSHostingController(rootView: contentView)
+        let hostingController = NSHostingController(rootView: contentView)
+        hostingController.sizingOptions = [.preferredContentSize]
+        popover.contentViewController = hostingController
     }
 
     func toggle(relativeTo rect: NSRect, of view: NSView) {

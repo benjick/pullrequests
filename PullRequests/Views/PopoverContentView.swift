@@ -17,7 +17,9 @@ struct PopoverContentView: View {
                 footerView
             }
         }
-        .frame(width: 380, height: 500)
+        .frame(width: 380)
+        .frame(maxHeight: 500)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     // MARK: - Setup Prompt
@@ -82,7 +84,7 @@ struct PopoverContentView: View {
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
     }
 
     private func sectionView(title: String, icon: String, iconColor: Color, prs: [PullRequest]) -> some View {
@@ -105,9 +107,11 @@ struct PopoverContentView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 4)
 
-                    ForEach(prs) { pr in
+                    ForEach(Array(prs.enumerated()), id: \.element.id) { index, pr in
                         PRRowView(pr: pr, appState: appState, onDismiss: onDismiss)
-                        Divider().padding(.leading, 48)
+                        if index < prs.count - 1 {
+                            Divider().padding(.leading, 48)
+                        }
                     }
                 }
             }
@@ -116,18 +120,17 @@ struct PopoverContentView: View {
 
     private var loadingView: some View {
         VStack(spacing: 12) {
-            Spacer()
             ProgressView()
             Text("Fetching pull requests...")
                 .font(.callout)
                 .foregroundStyle(.secondary)
-            Spacer()
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
     }
 
     private var emptyView: some View {
         VStack(spacing: 16) {
-            Spacer()
             Image(systemName: "tray")
                 .font(.system(size: 32))
                 .foregroundStyle(.secondary)
@@ -141,9 +144,9 @@ struct PopoverContentView: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .disabled(appState.isLoading)
-
-            Spacer()
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
     }
 
     // MARK: - Footer
