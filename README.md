@@ -6,9 +6,9 @@ icon, and sends native notifications for new comments, review changes,
 finished CI runs and review requests.
 
 <p>
-  <img src="docs/screenshots/settings-general.png" width="32%" alt="General settings">
-  <img src="docs/screenshots/settings-notifications.png" width="32%" alt="Notification settings">
-  <img src="docs/screenshots/settings-filters.png" width="32%" alt="Bot filters">
+  <img src="docs/screenshots/01-settings-general.png" width="32%" alt="General settings">
+  <img src="docs/screenshots/02-settings-notifications.png" width="32%" alt="Notification settings">
+  <img src="docs/screenshots/03-settings-filters.png" width="32%" alt="Bot filters">
 </p>
 
 ## Install
@@ -44,15 +44,24 @@ repositories won't show up.
 
 ## Features
 
-- One popover grouped into **Ready to Merge**, **Needs Your Review** and
-  **Waiting for Review**, with CI and review status on each PR.
-- Notifications for comments on your PRs, review status changes, CI
-  completion and new review requests, each toggleable.
-- Bot accounts are discovered from PR comments and can be ignored so they
-  don't trigger notifications.
-- Right-click a PR to open it, copy its URL, mute its notifications or hide it.
-- Polls every 30 seconds by default, backing off automatically to stay within
-  GitHub's API rate limits when you watch many repositories.
+- One popover grouped into **Ready to Merge** (your approved PRs), **Needs
+  Your Review** and **Waiting for Review** (your PRs still in review), with CI
+  and review status on each PR.
+- Menu bar badges: green for your PRs that are ready to merge, plus a count of
+  reviews waiting on you.
+- Notifications for new comments on watched PRs, review status changes and
+  finished CI runs on your PRs, and new review requests. Each type can be
+  turned off.
+- Bot accounts are discovered from PR comments and ignored by default; allow
+  the ones whose comments you want to be notified about.
+- Right-click a PR to open it, copy its URL, mute its notifications or hide
+  it. Hidden PRs can be brought back in Settings.
+- Polls every 30 seconds by default (15 seconds to 5 minutes), backing off
+  automatically to stay within GitHub's API rate limits when you watch many
+  repositories. Keeps retrying if GitHub can't be reached, for example right
+  after login.
+- Tells you when a new version is out, shows what's new, and gives you the
+  `brew upgrade` command.
 
 ## Uninstall
 

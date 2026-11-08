@@ -121,6 +121,13 @@ for (size, name) in sizes {
     }
     let fileURL = tempDir.appendingPathComponent("\(name).png")
     try pngData.write(to: fileURL)
+
+    // The same 512 px image also goes to docs/icon.png, which malm.me's apps
+    // page shows (see docs/store.md).
+    if name == "icon_256x256@2x" {
+        try FileManager.default.createDirectory(atPath: "docs", withIntermediateDirectories: true)
+        try pngData.write(to: URL(fileURLWithPath: "docs/icon.png"))
+    }
 }
 
 // Convert iconset to icns using iconutil
