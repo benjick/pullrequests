@@ -40,6 +40,8 @@ class SettingsWindowController: NSObject, NSWindowDelegate {
             // Keep one window size for all tabs instead of resizing per tab.
             host.sizingOptions = []
             host.preferredContentSize = Self.contentSize
+            // The tab controller copies the selected tab's title to the window.
+            host.title = title
             let item = NSTabViewItem(viewController: host)
             item.label = title
             item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: title)

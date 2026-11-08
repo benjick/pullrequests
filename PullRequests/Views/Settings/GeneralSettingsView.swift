@@ -71,10 +71,20 @@ struct GeneralSettingsView: View {
                     set: { _ in LaunchAtLoginManager.shared.toggle() }
                 ))
             }
+
+            Section("About") {
+                LabeledContent("Version", value: Self.appVersion)
+                Link("PullRequests on GitHub", destination: URL(string: "https://github.com/benjick/pullrequests")!)
+            }
         }
         .formStyle(.grouped)
         .padding()
     }
+
+    /// Release builds get the version from the git tag (set by the release
+    /// workflow); local builds keep the "dev" placeholder from Info.plist.
+    private static let appVersion =
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev"
 
     private func validateToken() {
         isValidating = true
