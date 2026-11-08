@@ -3,6 +3,11 @@
 Each release's section is used as its GitHub release notes. Add a section
 for the new version before pushing its tag; the release fails without one.
 
+## 1.0.4 - 2026-11-08
+
+- Tighten the spacing between the icon and text of the "Update available"
+  button.
+
 ## 1.0.3 - 2026-11-08
 
 - Fix the "Version" label in Settings → General.

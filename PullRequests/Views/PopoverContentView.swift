@@ -216,9 +216,12 @@ struct PopoverContentView: View {
                     showUpdateInstructions.toggle()
                     copiedCommand = false
                 } label: {
-                    Label("Update available", systemImage: "exclamationmark.circle.fill")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.orange)
+                    HStack(spacing: 3) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                        Text("Update available")
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.orange)
                 }
                 .buttonStyle(.plain)
                 .help("A newer version of PullRequests is available")
