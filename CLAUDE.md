@@ -103,7 +103,8 @@ Related files:
   Regenerate both together; never edit one by hand.
 - `docs/screenshots/*.png` are shown in filename order and the filename is the alt text,
   so name them `01-<what-it-shows>.png`, `02-…`. Retake them when the UI they show
-  changes, and never include private repository names or PR titles.
+  changes. Redact private organisation and repository names before committing
+  (`01-popover.png` shows how: the `owner/repo` line is covered with a grey bar).
 
 ## App Bundle Build
 

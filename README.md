@@ -5,10 +5,14 @@ PRs that need your attention in a popover, with a badge count on the menu bar
 icon, and sends native notifications for new comments, review changes,
 finished CI runs and review requests.
 
+<p align="center">
+  <img src="docs/screenshots/01-popover.png" width="600" alt="The PullRequests popover, listing PRs waiting for review with their CI status">
+</p>
+
 <p>
-  <img src="docs/screenshots/01-settings-general.png" width="32%" alt="General settings">
-  <img src="docs/screenshots/02-settings-notifications.png" width="32%" alt="Notification settings">
-  <img src="docs/screenshots/03-settings-filters.png" width="32%" alt="Bot filters">
+  <img src="docs/screenshots/02-settings-general.png" width="32%" alt="General settings">
+  <img src="docs/screenshots/03-settings-notifications.png" width="32%" alt="Notification settings">
+  <img src="docs/screenshots/04-settings-filters.png" width="32%" alt="Bot filters">
 </p>
 
 ## Install
