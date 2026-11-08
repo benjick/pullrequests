@@ -167,7 +167,11 @@ struct PopoverContentView: View {
 
     private func updateInstructionsView(version: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("PullRequests \(version) is available. Update with Homebrew:")
+            if !appState.updateNotes.isEmpty {
+                releaseNotesView
+            }
+
+            Text("Update to \(version) with Homebrew:")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -189,9 +193,49 @@ struct PopoverContentView: View {
                 }
                 .controlSize(.small)
             }
+
+            Link("All release notes ↗", destination: UpdateChecker.releasesPageURL)
+                .font(.caption)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+    }
+
+    /// "What's new" for every release newer than the running one. Scrolls when
+    /// several versions were skipped.
+    private var releaseNotesView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(appState.updateNotes) { release in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("What's new in \(release.version)")
+                            .font(.caption.weight(.semibold))
+                        ForEach(release.lines, id: \.self) { line in
+                            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                                if line.isBullet {
+                                    Text("•").foregroundStyle(.secondary)
+                                }
+                                Text(Self.inlineMarkdown(line.text))
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .font(.caption)
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxHeight: 160)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Renders `code`, **bold** and links; falls back to plain text.
+    private static func inlineMarkdown(_ text: String) -> AttributedString {
+        (try? AttributedString(
+            markdown: text,
+            options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+        )) ?? AttributedString(text)
     }
 
     private var footerBar: some View {
@@ -216,15 +260,17 @@ struct PopoverContentView: View {
                     showUpdateInstructions.toggle()
                     copiedCommand = false
                 } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: "exclamationmark.circle.fill")
-                        Text("Update available")
-                    }
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.orange)
+                    Text("Update available")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.green)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(.green.opacity(0.15), in: Capsule())
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
                 .help("A newer version of PullRequests is available")
+                .padding(.trailing, 6)
             }
 
             Button(action: onRefresh) {

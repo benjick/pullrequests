@@ -5,8 +5,10 @@ for the new version before pushing its tag; the release fails without one.
 
 ## 1.0.4 - 2026-11-08
 
-- Tighten the spacing between the icon and text of the "Update available"
-  button.
+- Restyle "Update available" as a small green pill, set apart from the
+  toolbar icons.
+- Clicking it now shows what's new in every release since the one you're
+  running, above the `brew upgrade` command, with a link to all release notes.
 
 ## 1.0.3 - 2026-11-08
 

@@ -9,7 +9,8 @@ private let log = Logger(subsystem: "com.pullrequests.app", category: "updates")
 final class UpdateChecker {
     static let brewCommand = "brew update && brew upgrade --cask pullrequests"
 
-    private static let latestReleaseURL = URL(string: "https://api.github.com/repos/benjick/pullrequests/releases/latest")!
+    static let releasesPageURL = URL(string: "https://github.com/benjick/pullrequests/releases")!
+    private static let releasesURL = URL(string: "https://api.github.com/repos/benjick/pullrequests/releases?per_page=30")!
     private static let interval: TimeInterval = 6 * 60 * 60
 
     private weak var appState: AppState?
@@ -32,20 +33,30 @@ final class UpdateChecker {
     }
 
     private func check(current: [Int]) async {
-        var request = URLRequest(url: Self.latestReleaseURL)
+        var request = URLRequest(url: Self.releasesURL)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard (response as? HTTPURLResponse)?.statusCode == 200,
-                  let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let tag = json["tag_name"] as? String,
-                  let latest = Self.parse(tag) else {
+                  let releases = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
                 log.error("Unexpected response from GitHub releases")
                 return
             }
-            let isNewer = Self.compare(latest, current) > 0
-            appState?.availableUpdate = isNewer ? latest.map(String.init).joined(separator: ".") : nil
-            log.info("Latest release \(tag, privacy: .public), update available: \(isNewer)")
+            // Every published release newer than the running one, newest first,
+            // so someone who skipped versions sees everything they missed.
+            let newer: [(version: [Int], notes: ReleaseNotes)] = releases.compactMap { release in
+                guard release["draft"] as? Bool != true, release["prerelease"] as? Bool != true,
+                      let tag = release["tag_name"] as? String,
+                      let version = Self.parse(tag),
+                      Self.compare(version, current) > 0 else { return nil }
+                let name = version.map(String.init).joined(separator: ".")
+                return (version, ReleaseNotes(version: name, body: release["body"] as? String ?? ""))
+            }
+            .sorted { Self.compare($0.version, $1.version) > 0 }
+
+            appState?.availableUpdate = newer.first?.notes.version
+            appState?.updateNotes = newer.map(\.notes)
+            log.info("Releases newer than this one: \(newer.count)")
         } catch {
             // Offline or rate limited; try again at the next interval.
             log.error("Update check failed: \(error.localizedDescription, privacy: .public)")
@@ -72,5 +83,35 @@ final class UpdateChecker {
             if x != y { return x < y ? -1 : 1 }
         }
         return 0
+    }
+}
+
+/// One release's notes, split into lines for display. Markdown bullets
+/// ("- foo", with indented continuation lines) become one entry each.
+struct ReleaseNotes: Identifiable {
+    let version: String
+    let lines: [Line]
+    var id: String { version }
+
+    struct Line: Hashable {
+        var text: String
+        var isBullet: Bool
+    }
+
+    init(version: String, body: String) {
+        self.version = version
+        var lines: [Line] = []
+        for raw in body.components(separatedBy: .newlines) {
+            let trimmed = raw.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty { continue }
+            if trimmed.hasPrefix("- ") || trimmed.hasPrefix("* ") {
+                lines.append(Line(text: String(trimmed.dropFirst(2)), isBullet: true))
+            } else if raw.hasPrefix(" "), !lines.isEmpty {
+                lines[lines.count - 1].text += " " + trimmed
+            } else {
+                lines.append(Line(text: trimmed, isBullet: false))
+            }
+        }
+        self.lines = lines
     }
 }

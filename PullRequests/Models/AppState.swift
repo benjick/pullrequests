@@ -13,6 +13,8 @@ class AppState {
     var lastFetchTime: Date?
     /// Version of a newer release on GitHub, e.g. "1.0.2"; nil when up to date.
     var availableUpdate: String?
+    /// Notes for every release newer than the running version, newest first.
+    var updateNotes: [ReleaseNotes] = []
     var notificationService: NotificationService?
 
     var needsReviewCount: Int { needsReviewPRs.filter { $0.reviewStatus != .approved }.count }
