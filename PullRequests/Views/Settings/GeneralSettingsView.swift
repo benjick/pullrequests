@@ -73,7 +73,7 @@ struct GeneralSettingsView: View {
             }
 
             Section("About") {
-                LabeledContent("Verison", value: Self.appVersion)
+                LabeledContent("Version", value: Self.appVersion)
                 Link("PullRequests on GitHub", destination: URL(string: "https://github.com/benjick/pullrequests")!)
             }
         }
