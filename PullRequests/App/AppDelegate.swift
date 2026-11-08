@@ -10,6 +10,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var gitHubService: GitHubService?
     private var pollingService: PollingService?
     private var notificationService: NotificationService?
+    private var updateChecker: UpdateChecker?
     private var previousPRs: [PullRequest] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -19,6 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupConfigChangeListener()
         setupNotificationService()
         startPollingIfConfigured()
+        startUpdateChecks()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -54,6 +56,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupSettingsWindow() {
         settingsWindowController.setup(appState: appState)
+    }
+
+    private func startUpdateChecks() {
+        let checker = UpdateChecker(appState: appState)
+        updateChecker = checker
+        checker.start()
     }
 
     private func setupNotificationService() {

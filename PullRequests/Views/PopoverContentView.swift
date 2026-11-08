@@ -7,6 +7,9 @@ struct PopoverContentView: View {
     let onQuit: () -> Void
     var onDismiss: (() -> Void)?
 
+    @State private var showUpdateInstructions = false
+    @State private var copiedCommand = false
+
     var body: some View {
         VStack(spacing: 0) {
             if !appState.isConfigured {
@@ -153,6 +156,45 @@ struct PopoverContentView: View {
     // MARK: - Footer
 
     private var footerView: some View {
+        VStack(spacing: 0) {
+            if showUpdateInstructions, let version = appState.availableUpdate {
+                updateInstructionsView(version: version)
+                Divider()
+            }
+            footerBar
+        }
+    }
+
+    private func updateInstructionsView(version: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("PullRequests \(version) is available. Update with Homebrew:")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 8) {
+                Text(UpdateChecker.brewCommand)
+                    .font(.system(.caption, design: .monospaced))
+                    .textSelection(.enabled)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 5))
+
+                Button(copiedCommand ? "Copied" : "Copy") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(UpdateChecker.brewCommand, forType: .string)
+                    copiedCommand = true
+                }
+                .controlSize(.small)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+    }
+
+    private var footerBar: some View {
         HStack {
             if let time = appState.lastFetchTime {
                 RelativeTimeText(date: time, prefix: "Updated")
@@ -168,6 +210,19 @@ struct PopoverContentView: View {
             }
 
             Spacer()
+
+            if appState.availableUpdate != nil {
+                Button {
+                    showUpdateInstructions.toggle()
+                    copiedCommand = false
+                } label: {
+                    Label("Update available", systemImage: "exclamationmark.circle.fill")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.orange)
+                }
+                .buttonStyle(.plain)
+                .help("A newer version of PullRequests is available")
+            }
 
             Button(action: onRefresh) {
                 Image(systemName: "arrow.clockwise")

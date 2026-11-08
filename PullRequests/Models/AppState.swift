@@ -11,6 +11,8 @@ class AppState {
     var isLoading: Bool = false
     var lastError: String?
     var lastFetchTime: Date?
+    /// Version of a newer release on GitHub, e.g. "1.0.2"; nil when up to date.
+    var availableUpdate: String?
     var notificationService: NotificationService?
 
     var needsReviewCount: Int { needsReviewPRs.filter { $0.reviewStatus != .approved }.count }
