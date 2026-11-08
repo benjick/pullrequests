@@ -1,0 +1,17 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    uses: benjick/homebrew-tap/.github/workflows/release-macos-app.yml@main
+    with:
+      app-name: PullRequests
+      cask: pullrequests
+    secrets:
+      TAP_TOKEN: ${{ secrets.TAP_TOKEN }}
