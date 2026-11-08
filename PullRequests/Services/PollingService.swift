@@ -1,4 +1,7 @@
 import Foundation
+import os
+
+private let log = Logger(subsystem: "com.pullrequests.app", category: "polling")
 
 @MainActor
 class PollingService {
@@ -18,7 +21,7 @@ class PollingService {
     func start() {
         // Validate token first, then start polling
         Task {
-            await validateAndFetch()
+            await poll()
         }
     }
 
@@ -28,7 +31,18 @@ class PollingService {
     }
 
     func pollNow() async {
-        await fetchPRs()
+        await poll()
+    }
+
+    /// Validates the token first if we don't know the username yet (e.g. the
+    /// initial validation failed because the network wasn't up at login).
+    private func poll() async {
+        guard let appState = appState else { return }
+        if appState.authenticatedUsername.isEmpty {
+            await validateAndFetch()
+        } else {
+            await fetchPRs()
+        }
     }
 
     private func validateAndFetch() async {
@@ -38,10 +52,16 @@ class PollingService {
         do {
             let username = try await gitHubService.validateToken(token)
             appState.authenticatedUsername = username
+            log.info("Authenticated as \(username, privacy: .public)")
             await fetchPRs()
         } catch {
+            log.error("Token validation failed: \(error.localizedDescription, privacy: .public)")
             appState.lastError = error.localizedDescription
             onError?(error)
+            // A bad token won't fix itself; a new token restarts polling.
+            // Anything else (offline, timeout, 5xx) is retried.
+            if case GitHubError.unauthorized = error { return }
+            scheduleNextPoll()
         }
     }
 
@@ -102,6 +122,7 @@ class PollingService {
 
             onFetchCompleted?(oldPRs, allPRs)
         } catch {
+            log.error("Fetch failed: \(error.localizedDescription, privacy: .public)")
             appState.isLoading = false
             appState.lastError = error.localizedDescription
             onError?(error)
@@ -120,7 +141,7 @@ class PollingService {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             Task { @MainActor in
-                await self?.fetchPRs()
+                await self?.poll()
             }
         }
     }
