@@ -6,7 +6,7 @@ struct NotificationsSettingsView: View {
     var body: some View {
         Form {
             Section("Notification Types") {
-                Toggle("Comments on your PRs", isOn: binding(\.notifyOnComments))
+                Toggle("Comments on watched PRs", isOn: binding(\.notifyOnComments))
                 Toggle("Review status changes", isOn: binding(\.notifyOnReviewStatus))
                 Toggle("CI/CD completion", isOn: binding(\.notifyOnCI))
                 Toggle("Review requests", isOn: binding(\.notifyOnReviewRequested))

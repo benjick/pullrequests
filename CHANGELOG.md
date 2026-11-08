@@ -3,6 +3,12 @@
 Each release's section is used as its GitHub release notes. Add a section
 for the new version before pushing its tag; the release fails without one.
 
+## 1.0.5 - 2026-11-08
+
+- Rename the "Comments on your PRs" notification setting to "Comments on
+  watched PRs", which is what it does: it covers new comments on any open PR
+  in the repositories you watch.
+
 ## 1.0.4 - 2026-11-08
 
 - Restyle "Update available" as a small green pill, set apart from the
